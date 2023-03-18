@@ -60,10 +60,17 @@ class CarListActivity : AppCompatActivity() {
         limpiarArreglo()
         carsCollectionRef.get().addOnSuccessListener { querySnaps ->
             for (document in querySnaps.documents) {
-                val car = document.toObject<Car>()
-                if (car != null) {
+                val car = Car(
+                    document.get("id") as String?,
+                    document.get("name") as String?,
+                    (document.get("doorNumber") as Number?)?.toInt(),
+                    (document.get("mileage") as Number?)?.toDouble(),
+                    document.get("isNew") as Boolean?,
+                    document.get("carLicense") as String?,
+                    document.get("beginLicense") as String?
+                )
                     this.carArrayList.add(car)
-                }
+
             }
             adapterCar.carList = carArrayList
             adapterCar.notifyDataSetChanged()

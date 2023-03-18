@@ -82,7 +82,7 @@
         android:text="Maritate status:"
         android:textStyle="bold"/>
     <RadioGroup
-        android:id="@+id/rg_maritate_status"
+        android:id="@+id/rg_maritate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 

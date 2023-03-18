@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.RadioButton
 import android.widget.RadioGroup
 import androidx.appcompat.app.AlertDialog
 import com.google.firebase.firestore.ktx.firestore
@@ -12,6 +13,7 @@ import com.google.firebase.ktx.Firebase
 import java.util.*
 
 class EditUserInfoActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_user_info)
@@ -28,14 +30,19 @@ class EditUserInfoActivity : AppCompatActivity() {
         var textAge = this.findViewById<EditText>(R.id.tit_age)
         var textSalary = this.findViewById<EditText>(R.id.tit_salary)
         var selectIsMen = this.findViewById<RadioGroup>(R.id.rg_is_men)
+        var selectIsMenOption = this.findViewById<RadioButton>(R.id.option_man)
+        var selectIsWomenOption = this.findViewById<RadioButton>(R.id.option_woman)
+        var selectMaritateSingle = this.findViewById<RadioButton>(R.id.option_s)
+        var selectMaritateMarried = this.findViewById<RadioButton>(R.id.option_m)
+
         if (isMen == false) {
-            selectIsMen.check(R.id.option_woman)
+            selectIsMen.check(selectIsWomenOption.id)
         } else {
-            selectIsMen.check(R.id.option_man)
+            selectIsMen.check(selectIsMenOption.id)
         }
 
 
-        var selectMaritateStatus = this.findViewById<RadioGroup>(R.id.rg_maritate_status)
+        var selectMaritateStatus = this.findViewById<RadioGroup>(R.id.rg_maritate)
         if (maritateStatus == "M") {
             selectMaritateStatus.check(R.id.option_m)
         } else {
@@ -46,18 +53,31 @@ class EditUserInfoActivity : AppCompatActivity() {
         textAge.setText(age.toString())
         textSalary.setText(salary.toString())
         var isMenOp: Boolean = true
-        val selectedRadioButtonMen = selectIsMen!!.checkedRadioButtonId
-        if (selectedRadioButtonMen == R.id.option_man) {
-            isMenOp = false
+        selectIsMen.setOnCheckedChangeListener { group, checkedId ->
+            isMenOp = checkedId != selectIsWomenOption.id
         }
-        val selectedRadioButtonMaritate = selectMaritateStatus!!.checkedRadioButtonId
+//        val selectedRadioButtonMen = selectIsMen!!.checkedRadioButtonId
+//        if (selectedRadioButtonMen == selectIsWomenOption.id) {
+//            isMenOp = false
+//        } else if(selectedRadioButtonMen == selectIsWomenOption.id){
+//            isMenOp = true
+//        }
+
+//        val selectedRadioButtonMaritate = selectMaritateStatus!!.checkedRadioButtonId
         var textMaritateStatus = "S"
-        if (selectedRadioButtonMaritate == R.id.option_m){
-            textMaritateStatus = "M"
+
+        selectMaritateStatus.setOnCheckedChangeListener { group, checkedId ->
+            textMaritateStatus = if (checkedId == selectMaritateMarried.id) {
+                "M"
+            }else{
+                "S"
+            }
         }
 
         val btnSaveData = this.findViewById<Button>(R.id.btn_save)
         btnSaveData.setOnClickListener {
+
+
             if (!checkChanges(
                     firstName,
                     lastName,
@@ -117,7 +137,6 @@ class EditUserInfoActivity : AppCompatActivity() {
         selectIsMen: Boolean?,
         selectMaritateStatus: String?
     ): Boolean {
-
 
 
         return (firstName == textFistName && lastName == textLastName && age == textAge && salary == textSalary && men == selectIsMen && maritateStatus == selectMaritateStatus)

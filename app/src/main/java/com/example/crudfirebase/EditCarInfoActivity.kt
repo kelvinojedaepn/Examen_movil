@@ -3,9 +3,13 @@ package com.example.crudfirebase
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.RadioButton
 import android.widget.RadioGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -31,28 +35,31 @@ class EditCarInfoActivity : AppCompatActivity() {
         textDoorNumber.setText(carDoorNumber.toString())
         var textMileage = this.findViewById<EditText>(R.id.tit_mileage)
         textMileage.setText(carMileage.toString())
-        var textBeginCarLicense = this.findViewById<EditText>(R.id.tit_begin_license_edit)
-        textBeginCarLicense.setText(beginLicense)
+        var textIsNoNewOption = this.findViewById<RadioButton>(R.id.option_isNew_no)
+        var textIsYesNewOption = this.findViewById<RadioButton>(R.id.option_isNew_yes)
+
         if(carLicense == null){
             carLicense = ""
         }
+        if(beginLicense == null){
+            beginLicense = ""
+        }
         var textCarLicense = this.findViewById<EditText>(R.id.tit_license)
         textCarLicense.setText(carLicense)
-        textBeginCarLicense.setText(textCarLicense.text.toString().split("")[0])
+        var textBeginCarLicense = this.findViewById<EditText>(R.id.tit_begin_license_edit)
+        textBeginCarLicense.setText(beginLicense)
+
         var textIsNew: Boolean = true
 
         val selectIsNewStatus = this.findViewById<RadioGroup>(R.id.rg_is_new_car)
         if(carIsNew == false){
-            selectIsNewStatus.check(R.id.option_isNew_no)
+            selectIsNewStatus.check(textIsNoNewOption.id)
         }else{
-            selectIsNewStatus.check(R.id.option_isNew_yes)
+            selectIsNewStatus.check(textIsYesNewOption.id)
         }
 
-        var selectRadioButtonNew = selectIsNewStatus!!.checkedRadioButtonId
-        if(selectRadioButtonNew == R.id.option_isNew_no){
-            textIsNew = false
-        }else{
-            textIsNew = true
+        selectIsNewStatus.setOnCheckedChangeListener { group, checkedId ->
+            textIsNew = checkedId != textIsNoNewOption.id
         }
 
 
@@ -101,11 +108,28 @@ class EditCarInfoActivity : AppCompatActivity() {
                     )
                 }
             }
-            irActividad(CarListActivity::class.java)
+            abrirActividadConParametros(CarListActivity::class.java, it, id!!)
 
         }
 
 
+    }
+
+    private val contenidoIntentExplicito = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == AppCompatActivity.RESULT_OK) {
+            if (result.data != null) {
+                val data = result.data
+                Log.i("Intente-epn", "${data?.getStringExtra("nombreModificado")}")
+            }
+        }
+    }
+
+    private fun abrirActividadConParametros(clase: Class<*>, it: View?, idOwner: String) {
+        val intent = Intent(it!!.context, clase)
+        intent.putExtra("userId", idOwner)
+        contenidoIntentExplicito.launch(intent)
     }
 
     private fun saveData(
